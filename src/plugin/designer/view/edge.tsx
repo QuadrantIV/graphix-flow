@@ -1,6 +1,7 @@
 import { Graph, Edge } from '@antv/x6';
 import React, { memo, useEffect, useRef } from 'react';
 import { PropsData, prototypeRegistry } from 'graphix-engine';
+import { isEqual } from 'lodash';
 
 interface Props {
   graph: Graph;
@@ -11,37 +12,41 @@ interface Props {
   onUnMountEdge: (edge: Edge) => void;
 }
 
-const EdgeComponent = memo((props: Props) => {
-  const x6EdgeRef = useRef<Edge>();
+export default class EdgeComponent extends React.PureComponent<Props> {
+  private x6Edge: Edge;
 
-  useEffect(() => {
-    const { id, type, graph } = props;
+  componentDidMount() {
+    const { id, type, graph } = this.props;
     const view = prototypeRegistry.getPrototypeByType(type)?.getView();
     // 创建 x6 edge
-    const x6Edge = graph.createEdge({
+    this.x6Edge = graph.createEdge({
       id,
       ...view
     });
-    x6EdgeRef.current = x6Edge;
     // 收集 edge 统一添加到画布
-    props.onMountEdge(x6Edge);
+    this.props.onMountEdge(this.x6Edge);
 
-    return () => {
-      props.onUnMountEdge(x6Edge);
-    }
-  }, []);
+    const { source, target } = this.props.nodeProps;
+    this.x6Edge.setSource({ cell: source });
+    this.x6Edge.setTarget({ cell: target });
+  }
 
-  useEffect(() => {
-    const x6Edge = x6EdgeRef.current;
-    if (x6Edge) {
-      const { source, target } = props.nodeProps;
-      x6Edge.setSource({ cell: source?.id, port: source?.port });
-      x6Edge.setTarget({ cell: target?.id, port: target?.port });
-    }
-  }, [props.nodeProps]);
+  shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<{}>, nextContext: any): boolean {
+    return !isEqual(nextProps.nodeProps, this.props.nodeProps);
+  }
 
-  return null;
-})
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
+    const { source, target } = this.props.nodeProps;
+    this.x6Edge.setSource({ cell: source });
+    this.x6Edge.setTarget({ cell: target });
+  }
 
-export default EdgeComponent;
+  componentWillUnmount() {
+    this.props.onUnMountEdge(this.x6Edge);
+  }
+
+  render() {
+    return null;
+  }
+}
 

@@ -29,38 +29,33 @@ export default function initGraph(container: HTMLDivElement) {
       maxScale: 1.5,
       minScale: 0.5,
     },
-    connecting: {
-      snap: {
-        radius: 40,
-      },
-      allowBlank: false,
-      allowLoop: false,
-      allowNode: false,
-      highlight: false,
-      createEdge() {
-        return this.createEdge({
-          shape: 'edge',
-          ...CommonLineView
-        });
-      },
-      validateEdge({ edge }) {
-        context.addNode({
-          type: EdgeType.Edge,
-          props: {
-            source: { id: edge.getSourceCellId(), port: edge.getSourcePortId() },
-            target: { id: edge.getTargetCellId(), port: edge.getTargetPortId() }
-          }
-        });
-        return false;
-      }
-    },
+    // connecting: {
+    //   snap: {
+    //     radius: 40,
+    //   },
+    //   allowBlank: false,
+    //   allowLoop: false,
+    //   allowNode: false,
+    //   highlight: false,
+    //   createEdge() {
+    //     return this.createEdge({
+    //       shape: 'edge',
+    //       ...CommonLineView
+    //     });
+    //   },
+    //   validateEdge({ edge }) {
+    //     context.addNode({
+    //       type: EdgeType.Edge,
+    //       props: {
+    //         source: { id: edge.getSourceCellId(), port: edge.getSourcePortId() },
+    //         target: { id: edge.getTargetCellId(), port: edge.getTargetPortId() }
+    //       }
+    //     });
+    //     return false;
+    //   }
+    // },
+    interacting: false
   });
-
-  graph.use(
-    new Snapline({
-      enabled: true,
-    }),
-  );
 
   graph.on('blank:click', ({ e, x, y}) => {
     context.getSelection().setKeys([]);

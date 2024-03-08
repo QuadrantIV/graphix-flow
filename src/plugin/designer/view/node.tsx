@@ -1,6 +1,7 @@
 import { prototypeRegistry, PropsData } from 'graphix-engine';
 import { Graph, Node } from '@antv/x6';
 import React, { memo, useEffect, useRef } from 'react';
+import { isEqual } from 'lodash';
 
 interface Props {
   graph: Graph;
@@ -11,41 +12,49 @@ interface Props {
   onUnMountNode: (node: Node) => void;
 }
 
-const NodeComponent = memo((props: Props) => {
-  const x6NodeRef = useRef<Node>();
+export default class NodeComponent extends React.PureComponent<Props> {
+  private x6Node: Node;
 
-  useEffect(() => {
-    const { id, type, graph, onMountNode, onUnMountNode } = props;
+  componentDidMount() {
+    const { id, type, graph, onMountNode } = this.props;
     const view = prototypeRegistry.getPrototypeByType(type)?.getView();
     // 创建 x6 node
-    const x6Node = graph.createNode({
+    this.x6Node = graph.createNode({
       id,
       ...view,
     });
-    x6NodeRef.current = x6Node;
     // 收集 node 统一添加到画布
-    onMountNode(x6Node);
-    return () => {
-      onUnMountNode(x6Node);
-    }
-  }, []);
+    onMountNode(this.x6Node);
 
-  useEffect(() => {
-    const x6Node = x6NodeRef.current;
-    if (x6Node) {
-      const { position, name, description } = props.nodeProps;
-      x6Node.setPosition(position);
+    const { position, name, description } = this.props.nodeProps;
+    this.x6Node.setPosition(position);
+    this.x6Node.setData({
+      type,
+      name,
+      description
+    });
+  }
 
-      x6Node.setData({
-        type: props.type,
-        name,
-        description
-      });
-    }
-  }, [props.nodeProps]);
+  shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<{}>, nextContext: any): boolean {
+    return !isEqual(nextProps.nodeProps, this.props.nodeProps);
+  }
 
-  return null;
-});
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
+    const { position, name, description } = this.props.nodeProps;
+    this.x6Node.setPosition(position);
+    this.x6Node.setData({
+      type: this.props.type,
+      name,
+      description
+    });
+  }
 
-export default NodeComponent;
+  componentWillUnmount() {
+    const { onUnMountNode } = this.props;
+    onUnMountNode(this.x6Node);
+  }
 
+  render() {
+    return null;
+  }
+}

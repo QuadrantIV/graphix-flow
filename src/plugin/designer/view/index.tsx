@@ -4,6 +4,7 @@ import EdgeComponent from './edge';
 import { Node, Edge, Graph } from '@antv/x6';
 import { Node as GraphixNode, getContext } from 'graphix-engine';
 import { EdgeType, NodeType } from '../../../component/types';
+import dagreLayout from '../graph/dagreLayout';
 
 interface Props {
   graph: Graph;
@@ -19,13 +20,19 @@ class Views extends React.PureComponent<Props> {
 
   componentDidMount() {
     const { graph } = this.props;
-
     graph.resetCells([...this.x6Nodes, ...this.x6Edges]);
+    dagreLayout(this.x6Nodes, this.x6Edges);
+    setTimeout(() => {
+      graph.centerContent();
+    }, 100);
     this.mounted = true;
-
     getContext().getTimeline().onStateChange(state => {
       this.forceUpdate();
     });
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
+    dagreLayout(this.x6Nodes, this.x6Edges);
   }
 
   // 收集 edge

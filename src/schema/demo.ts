@@ -1,6 +1,6 @@
 export const DemoSchema = {
   id: 'd94bc0d46131c',
-  documentType: 'bpms',
+  documentType: 'process',
   documentVersion: '1.0.0',
   props: {
     variables: '{}',
@@ -41,14 +41,8 @@ export const DemoSchema = {
     {
       type: 'Edge',
       props: {
-        source: {
-          id: 'node_lqyw35yl',
-          port: 'bottom',
-        },
-        target: {
-          id: 'node-end',
-          port: 'top',
-        },
+        source: 'node_lqyw35yl',
+        target: 'node-end',
       },
       id: 'node_lqyw35yo',
     },
@@ -67,28 +61,16 @@ export const DemoSchema = {
     {
       type: 'Edge',
       props: {
-        source: {
-          id: 'node-start',
-          port: 'bottom',
-        },
-        target: {
-          id: 'node_lr0konzp',
-          port: 'top',
-        },
+        source: 'node-start',
+        target: 'node_lr0konzp',
       },
       id: 'node_lr0konzs',
     },
     {
       type: 'Edge',
       props: {
-        source: {
-          id: 'node_lr0konzp',
-          port: 'bottom',
-        },
-        target: {
-          id: 'node_lqyw35yl',
-          port: 'top',
-        },
+        source: 'node_lr0konzp',
+        target: 'node_lqyw35yl',
       },
       id: 'node_lr0konzt',
     },

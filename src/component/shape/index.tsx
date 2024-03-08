@@ -76,9 +76,6 @@ export const CommonLineView = {
     },
   },
   connector: { name: 'rounded' },
-  router: {
-    name: 'manhattan',
-  },
 };
 
 export const StartEventView = {
