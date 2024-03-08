@@ -3,6 +3,7 @@ import { Graph } from '@antv/x6';
 import { Snapline } from '@antv/x6-plugin-snapline';
 import { getContext } from 'graphix-engine';
 import { EdgeType } from '../../../component/types';
+import { dnd } from './initDnd';
 
 export let graph: Graph = undefined!;
 export default function initGraph(container: HTMLDivElement) {
@@ -29,31 +30,6 @@ export default function initGraph(container: HTMLDivElement) {
       maxScale: 1.5,
       minScale: 0.5,
     },
-    // connecting: {
-    //   snap: {
-    //     radius: 40,
-    //   },
-    //   allowBlank: false,
-    //   allowLoop: false,
-    //   allowNode: false,
-    //   highlight: false,
-    //   createEdge() {
-    //     return this.createEdge({
-    //       shape: 'edge',
-    //       ...CommonLineView
-    //     });
-    //   },
-    //   validateEdge({ edge }) {
-    //     context.addNode({
-    //       type: EdgeType.Edge,
-    //       props: {
-    //         source: { id: edge.getSourceCellId(), port: edge.getSourcePortId() },
-    //         target: { id: edge.getTargetCellId(), port: edge.getTargetPortId() }
-    //       }
-    //     });
-    //     return false;
-    //   }
-    // },
     interacting: false
   });
 
@@ -65,10 +41,26 @@ export default function initGraph(container: HTMLDivElement) {
     context.getSelection().setKeys([cell.id]);
   });
 
-  graph.on('node:moved', ({ e, x, y, cell, view  }) => {
-    const node = context.getNode(cell.id);
-    const position = cell.getPosition();
-    node?.setPropData('position', position);
+  graph.on('node:mousedown', ({e}) => {
+    graph.panning.disablePanning();
+  });
+
+  let moveing: boolean = false;
+  graph.on('node:mousemove', ({ e, x, y, cell, view }) => {
+    if (!moveing) {
+      const node = cell.clone();
+      node.setData({ id: cell.id });
+      // @ts-ignore
+      dnd.start(node, e);
+    }
+    moveing = true;
+  });
+
+  graph.on('node:mouseup', ({ e, x, y, cell, view  }) => {
+    graph.panning.enablePanning();
+    // @ts-ignore
+    dnd.onDragEnd(e);
+    moveing = false;
   });
   return graph;
 }
